@@ -8,9 +8,11 @@ import main.visitor.Visitor;
 
 public class TypeChecker extends Visitor<Void> {
     ExpressionTypeChecker expressionTypeChecker;
+    private final Graph<String> structHierarchy;
 
-    public void TypeChecker(){
-        this.expressionTypeChecker = new ExpressionTypeChecker();
+    public void TypeChecker(Graph<String> structHierarchy){
+        this.structHierarchy = structHierarchy;
+        this.expressionTypeChecker = new ExpressionTypeChecker(structHierarchy);
     }
 
     @Override
