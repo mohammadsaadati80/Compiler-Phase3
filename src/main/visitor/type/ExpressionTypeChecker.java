@@ -139,7 +139,6 @@ public class ExpressionTypeChecker extends Visitor<Type> {
         else {
             if (tl instanceof IntType && tr instanceof IntType)
                 return new IntType();
-
             if ((tl instanceof NoType || tl instanceof IntType) &&
                     (tr instanceof IntType || tr instanceof NoType))
                 return new NoType();
@@ -293,14 +292,22 @@ public class ExpressionTypeChecker extends Visitor<Type> {
     }
 
     @Override
-    public Type visit(StructAccess structAccess) {
-        //Todo
-        return null;
+    public Type visit(StructAccess structAccess) {  // need check
+        Type instanceType = structAccess.getInstance().accept(this); // need check
+        if(instanceType instanceof StructType)
+            return new NoType(); // need check
+        else {
+            if(!(instanceType instanceof NoType)) {
+                AccessOnNonStruct exception = new AccessOnNonStruct(structAccess.getLine());
+                structAccess.addError(exception);
+            }
+            return new NoType();
+        }
     }
 
     @Override
     public Type visit(ListSize listSize) {
-        Type instanceType = listSize.getInstance().accept(this);
+        Type instanceType = listSize.getArg().accept(this);
         if(instanceType instanceof ListType)
             return new IntType();
         else {
@@ -314,8 +321,16 @@ public class ExpressionTypeChecker extends Visitor<Type> {
 
     @Override
     public Type visit(ListAppend listAppend) {
-        //Todo
-        return null;
+        Type instanceType = listAppend.getListArg().accept(this);
+        if(instanceType instanceof ListType)
+            return new VoidType();
+        else {
+            if(!(instanceType instanceof NoType)) {
+                AppendToNonList exception = new AppendToNonList(listAppend.getLine());
+                listAppend.addError(exception);
+            }
+            return new NoType();
+        }
     }
 
     @Override
