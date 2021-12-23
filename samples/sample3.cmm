@@ -1,0 +1,16 @@
+main() begin
+    if true begin
+        int i
+        if i
+            return function()
+    end
+    else begin
+        bool i
+        if i & true begin
+            fptr<int, int -> void> fp1
+            fp1 = function
+        end
+    end
+
+
+end

@@ -3,8 +3,12 @@ package main.visitor.type;
 import main.ast.nodes.Program;
 import main.ast.nodes.declaration.*;
 import main.ast.nodes.declaration.struct.*;
+import main.ast.nodes.expression.operators.BinaryOperator;
 import main.ast.nodes.statement.*;
+import main.ast.types.NoType;
 import main.ast.types.Type;
+import main.ast.types.primitives.BoolType;
+import main.compileError.typeError.*;
 import main.symbolTable.utils.graph.Graph;
 import main.visitor.Visitor;
 
@@ -49,12 +53,11 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(VariableDeclaration variableDec) {
-        if (inSetterGetter){
-            System.out.printf("Line %d: Cannot define a new variable in this scope%n", variableDec.getLine());
+        if (inSetterGetter) {
+            variableDec.addError(new CannotUseDefineVar(variableDec.getLine()));
             return null;
         }
-        if (variableDec.getDefaultValue() != null)
-            variableDec.getDefaultValue().accept(this);
+        if (variableDec.getDefaultValue() != null) variableDec.getDefaultValue().accept(this);
         return null;
     }
 
@@ -66,8 +69,7 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(SetGetVarDeclaration setGetVarDec) {
-        for (VariableDeclaration varDec: setGetVarDec.getArgs())
-            varDec.accept(this);
+        for (VariableDeclaration varDec : setGetVarDec.getArgs()) varDec.accept(this);
         retType.push(setGetVarDec.getVarType());
         inSetter = true;
         inSetterGetter = true;
@@ -81,7 +83,12 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(AssignmentStmt assignmentStmt) {
-        //Todo
+        Type lValueType = assignmentStmt.getLValue().accept(expressionTypeChecker);
+        Type rValueType = assignmentStmt.getRValue().accept(expressionTypeChecker);
+        if (!expressionTypeChecker.isLvalue(assignmentStmt.getLValue()))
+            assignmentStmt.addError(new LeftSideNotLvalue(assignmentStmt.getLine()));
+        if (!this.expressionTypeChecker.sameType(lValueType, rValueType))
+            assignmentStmt.addError(new UnsupportedOperandType(assignmentStmt.getLine(), BinaryOperator.assign.name()));
         return null;
     }
 
@@ -93,7 +100,12 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(ConditionalStmt conditionalStmt) {
-        //Todo
+        Type conditionType = conditionalStmt.getCondition().accept(expressionTypeChecker);
+        if(!(conditionType instanceof BoolType) && !(conditionType instanceof NoType))
+            conditionalStmt.addError(new ConditionNotBool(conditionalStmt.getCondition().getLine()));
+        conditionalStmt.getThenBody().accept(this);
+        if (conditionalStmt.getElseBody() != null)
+            conditionalStmt.getElseBody().accept(this);
         return null;
     }
 
@@ -114,15 +126,18 @@ public class TypeChecker extends Visitor<Void> {
         Type ret = returnStmt.getReturnedExpr().accept(expressionTypeChecker);
         boolean result = ret.getClass().equals(retType.peek().getClass());
         if (!result && !inSetter)
-            System.out.printf("Line %d:Return value does not match with function return type%n", returnStmt.getLine());
+            returnStmt.addError(new ReturnValueNotMatchFunctionReturnType(returnStmt.getLine()));
         if (inSetter)
-            System.out.printf("Line %d: Cannot use return statement in this scope%n", returnStmt.getLine());
+            returnStmt.addError(new CannotUseReturn(returnStmt.getLine()));
         return null;
     }
 
     @Override
     public Void visit(LoopStmt loopStmt) {
-        //Todo
+        Type conditionType = loopStmt.getCondition().accept(expressionTypeChecker);
+        if(!(conditionType instanceof BoolType) && !(conditionType instanceof NoType))
+            loopStmt.addError(new ConditionNotBool(loopStmt.getCondition().getLine()));
+        loopStmt.getBody().accept(this);
         return null;
     }
 
