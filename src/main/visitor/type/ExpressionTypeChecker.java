@@ -55,12 +55,14 @@ public class ExpressionTypeChecker extends Visitor<Type> {
     public FunctionSymbolTableItem getCurFunction() { return this.curFunction; }
 
     private FunctionSymbolTableItem findFunccSymobolTableItem(FptrType fptr) {
-        try{
+        /*try{
             FunctionSymbolTableItem func = (FunctionSymbolTableItem) SymbolTable.root.getItem(FunctionSymbolTableItem.START_KEY + fptr.getFunctionName());
             return func;
         }catch (ItemNotFoundException e){
             return null;
-        }
+        }*/
+        return null;
+
     }
 
     public boolean sameType(Type el1,Type el2){
@@ -77,7 +79,7 @@ public class ExpressionTypeChecker extends Visitor<Type> {
         if (el1 instanceof ListType && el2 instanceof ListType){
             return sameType(((ListType) el1).getType(), ((ListType) el2).getType());
         }
-        if(el1 instanceof FptrType && el2 instanceof FptrType){
+        /*if(el1 instanceof FptrType && el2 instanceof FptrType){
             if(((FptrType) el1).getFunctionName().equals(((FptrType) el2).getFunctionName()))
                 return true;
             FunctionSymbolTableItem f1 = findFunccSymobolTableItem((FptrType) el1);
@@ -97,7 +99,7 @@ public class ExpressionTypeChecker extends Visitor<Type> {
                 }
             }
             return true;
-        }
+        }*/
         return false;
     }
 
@@ -232,11 +234,11 @@ public class ExpressionTypeChecker extends Visitor<Type> {
         boolean temp = isFunctioncallStmt;
         isFunctioncallStmt = false;
         ArrayList<Type> rtypes = new ArrayList<>();
-        Map<String, Type> rtypesWithKey = new HashMap<>();
+        /*Map<String, Type> rtypesWithKey = new HashMap<>();
         for (Map.Entry<Identifier,Expression> argsWithKey: funcCall.getArgsWithKey().entrySet()) {
             Type curType = argsWithKey.getValue().accept(this);
             rtypesWithKey.put(argsWithKey.getKey().getName(), curType);
-        }
+        }*/
         for (Expression expression : funcCall.getArgs()) {
             Type t = expression.accept(this);
             rtypes.add(t);
@@ -256,7 +258,7 @@ public class ExpressionTypeChecker extends Visitor<Type> {
                 funcCall.addError(exception);
                 error = true;
             }
-            if(funcCall.getArgsWithKey().size() != 0) {
+            /*if(funcCall.getArgsWithKey().size() != 0) {
                 if(funcCall.getArgsWithKey().size() != func.getArgTypes().size()) {
                     ArgsInFunctionCallNotMatchDefinition exception = new ArgsInFunctionCallNotMatchDefinition(funcCall.getLine());
                     funcCall.addError(exception);
@@ -289,7 +291,7 @@ public class ExpressionTypeChecker extends Visitor<Type> {
                         }
                     }
                 }
-            }
+            }*/
             if (declareError) {
                 ArgsInFunctionCallNotMatchDefinition exception = new ArgsInFunctionCallNotMatchDefinition(funcCall.getLine());
                 funcCall.addError(exception);
@@ -305,7 +307,7 @@ public class ExpressionTypeChecker extends Visitor<Type> {
 
     @Override
     public Type visit(Identifier identifier) {
-        try {
+        /*try {
             FunctionSymbolTableItem funcSym = (FunctionSymbolTableItem) SymbolTable.root.getItem(FunctionSymbolTableItem.START_KEY + identifier.getName());
             return new FptrType(identifier.getName());
         }catch (ItemNotFoundException e) {
@@ -322,7 +324,7 @@ public class ExpressionTypeChecker extends Visitor<Type> {
                     return new NoType();
                 }
             }
-        }
+        }*/
         return null;
     }
 

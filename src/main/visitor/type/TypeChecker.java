@@ -8,10 +8,13 @@ import main.ast.types.Type;
 import main.symbolTable.utils.graph.Graph;
 import main.visitor.Visitor;
 
+import java.util.Stack;
+
 public class TypeChecker extends Visitor<Void> {
     ExpressionTypeChecker expressionTypeChecker;
     private Graph<String> structHierarchy;
-    private FunctionDeclaration currentFunction;
+    private final Stack<Type> retType = new Stack<>();
+    private boolean inSetter;
 
     public void TypeChecker(Graph<String> structHierarchy) {
         this.structHierarchy = structHierarchy;
@@ -30,32 +33,42 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(FunctionDeclaration functionDec) {
+        retType.push(functionDec.getReturnType());
         for (VariableDeclaration arg : functionDec.getArgs()) arg.accept(this);
         functionDec.getBody().accept(this);
+        retType.pop();
         return null;
     }
 
     @Override
     public Void visit(MainDeclaration mainDec) {
-        //Todo
+        mainDec.getBody().accept(this);
         return null;
     }
 
     @Override
     public Void visit(VariableDeclaration variableDec) {
-        //Todo
+        if (variableDec.getDefaultValue() != null)
+            variableDec.getDefaultValue().accept(this);
         return null;
     }
 
     @Override
     public Void visit(StructDeclaration structDec) {
-        //Todo
+        structDec.getBody().accept(this);
         return null;
     }
 
     @Override
     public Void visit(SetGetVarDeclaration setGetVarDec) {
-        //Todo
+        for (VariableDeclaration varDec: setGetVarDec.getArgs())
+            varDec.accept(this);
+        retType.push(setGetVarDec.getVarType());
+        inSetter = true;
+        setGetVarDec.getSetterBody().accept(this);
+        inSetter = false;
+        setGetVarDec.getGetterBody().accept(this);
+        retType.pop();
         return null;
     }
 
@@ -67,7 +80,7 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(BlockStmt blockStmt) {
-        //Todo
+        for (Statement stmt : blockStmt.getStatements()) stmt.accept(this);
         return null;
     }
 
@@ -91,10 +104,12 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(ReturnStmt returnStmt) {
-        Type retType = returnStmt.getReturnedExpr().accept(expressionTypeChecker);
-        boolean result = retType.getClass().equals(currentFunction.getReturnType().getClass());
-        if (!result)
+        Type ret = returnStmt.getReturnedExpr().accept(expressionTypeChecker);
+        boolean result = ret.getClass().equals(retType.peek().getClass());
+        if (!result && !inSetter)
             System.out.printf("Line %d:Return value does not match with function return type%n", returnStmt.getLine());
+        if (inSetter)
+            System.out.printf("Line %d: Cannot use return statement in this scope%n", returnStmt.getLine());
         return null;
     }
 

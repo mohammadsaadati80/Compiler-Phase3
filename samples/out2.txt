@@ -1,0 +1,17 @@
+Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+Exception in thread "main" java.lang.NullPointerException
+	at main.ast.nodes.expression.ListAppend.accept(ListAppend.java:29)
+	at main.visitor.type.TypeChecker.visit(TypeChecker.java:95)
+	at main.visitor.type.TypeChecker.visit(TypeChecker.java:11)
+	at main.ast.nodes.statement.ReturnStmt.accept(ReturnStmt.java:28)
+	at main.visitor.type.TypeChecker.visit(TypeChecker.java:71)
+	at main.visitor.type.TypeChecker.visit(TypeChecker.java:11)
+	at main.ast.nodes.statement.BlockStmt.accept(BlockStmt.java:27)
+	at main.visitor.type.TypeChecker.visit(TypeChecker.java:34)
+	at main.visitor.type.TypeChecker.visit(TypeChecker.java:11)
+	at main.ast.nodes.declaration.FunctionDeclaration.accept(FunctionDeclaration.java:55)
+	at main.visitor.type.TypeChecker.visit(TypeChecker.java:26)
+	at main.visitor.type.TypeChecker.visit(TypeChecker.java:11)
+	at main.ast.nodes.Program.accept(Program.java:50)
+	at main.CmmCompiler.compile(CmmCompiler.java:27)
+	at main.Cmm.main(Cmm.java:11)
