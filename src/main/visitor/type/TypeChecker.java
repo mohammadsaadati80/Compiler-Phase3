@@ -4,26 +4,34 @@ import main.ast.nodes.Program;
 import main.ast.nodes.declaration.*;
 import main.ast.nodes.declaration.struct.*;
 import main.ast.nodes.statement.*;
+import main.ast.types.Type;
+import main.symbolTable.utils.graph.Graph;
 import main.visitor.Visitor;
 
 public class TypeChecker extends Visitor<Void> {
     ExpressionTypeChecker expressionTypeChecker;
-    private final Graph<String> structHierarchy;
+    private Graph<String> structHierarchy;
+    private FunctionDeclaration currentFunction;
 
-    public void TypeChecker(Graph<String> structHierarchy){
+    public void TypeChecker(Graph<String> structHierarchy) {
         this.structHierarchy = structHierarchy;
         this.expressionTypeChecker = new ExpressionTypeChecker(structHierarchy);
     }
 
     @Override
     public Void visit(Program program) {
-        //Todo
+        for (StructDeclaration structDeclaration : program.getStructs())
+            structDeclaration.accept(this);
+        for (FunctionDeclaration functionDeclaration : program.getFunctions())
+            functionDeclaration.accept(this);
+        program.getMain().accept(this);
         return null;
     }
 
     @Override
     public Void visit(FunctionDeclaration functionDec) {
-        //Todo
+        for (VariableDeclaration arg : functionDec.getArgs()) arg.accept(this);
+        functionDec.getBody().accept(this);
         return null;
     }
 
@@ -83,7 +91,10 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(ReturnStmt returnStmt) {
-        //Todo
+        Type retType = returnStmt.getReturnedExpr().accept(expressionTypeChecker);
+        boolean result = retType.getClass().equals(currentFunction.getReturnType().getClass());
+        if (!result)
+            System.out.printf("Line %d:Return value does not match with function return type%n", returnStmt.getLine());
         return null;
     }
 

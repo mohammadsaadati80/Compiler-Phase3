@@ -23,6 +23,9 @@ import main.symbolTable.exceptions.ItemNotFoundException;
 import main.symbolTable.utils.graph.Graph;
 import main.visitor.Visitor;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 public class ExpressionTypeChecker extends Visitor<Type> {
     private final Graph<String> structHierarchy;
     private StructSymbolTableItem curStruct;
