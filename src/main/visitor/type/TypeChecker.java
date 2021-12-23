@@ -5,6 +5,7 @@ import main.ast.nodes.declaration.*;
 import main.ast.nodes.declaration.struct.*;
 import main.ast.nodes.expression.operators.BinaryOperator;
 import main.ast.nodes.statement.*;
+import main.ast.types.ListType;
 import main.ast.types.NoType;
 import main.ast.types.Type;
 import main.ast.types.primitives.BoolType;
@@ -53,10 +54,7 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(VariableDeclaration variableDec) {
-        if (inSetterGetter) {
-            variableDec.addError(new CannotUseDefineVar(variableDec.getLine()));
-            return null;
-        }
+        if (inSetterGetter) variableDec.addError(new CannotUseDefineVar(variableDec.getLine()));
         if (variableDec.getDefaultValue() != null) variableDec.getDefaultValue().accept(this);
         return null;
     }
@@ -143,19 +141,21 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(VarDecStmt varDecStmt) {
-        //Todo
+        for(VariableDeclaration varDec: varDecStmt.getVars()) varDec.accept(this);
         return null;
     }
 
     @Override
     public Void visit(ListAppendStmt listAppendStmt) {
         //Todo
+//        listAppendStmt.
         return null;
     }
 
     @Override
     public Void visit(ListSizeStmt listSizeStmt) {
-        //Todo
+        if (!(listSizeStmt.getListSizeExpr().accept(expressionTypeChecker) instanceof ListType))
+            listSizeStmt.addError(new GetSizeOfNonList(listSizeStmt.getLine()));
         return null;
     }
 }

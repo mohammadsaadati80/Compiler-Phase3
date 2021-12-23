@@ -1,16 +1,11 @@
 main() begin
-    if true begin
-        int i
-        if i
-            return function()
-    end
-    else begin
-        bool i
-        if i & true begin
-            fptr<int, int -> void> fp1
-            fp1 = function
-        end
-    end
-
-
+    append(li, 2)
+	list #int li2
+	append(li, li2)
+	int li3
+	append(li3, true)
+	append(li + 2, size(size(li)))
+	return li[li3]
+	return li[0][0][0]
+	return li3[1][1][true]
 end
