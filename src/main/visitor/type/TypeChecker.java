@@ -15,6 +15,7 @@ public class TypeChecker extends Visitor<Void> {
     private Graph<String> structHierarchy;
     private final Stack<Type> retType = new Stack<>();
     private boolean inSetter;
+    private boolean inSetterGetter;
 
     public void TypeChecker(Graph<String> structHierarchy) {
         this.structHierarchy = structHierarchy;
@@ -48,6 +49,10 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(VariableDeclaration variableDec) {
+        if (inSetterGetter){
+            System.out.printf("Line %d: Cannot define a new variable in this scope%n", variableDec.getLine());
+            return null;
+        }
         if (variableDec.getDefaultValue() != null)
             variableDec.getDefaultValue().accept(this);
         return null;
@@ -65,9 +70,11 @@ public class TypeChecker extends Visitor<Void> {
             varDec.accept(this);
         retType.push(setGetVarDec.getVarType());
         inSetter = true;
+        inSetterGetter = true;
         setGetVarDec.getSetterBody().accept(this);
         inSetter = false;
         setGetVarDec.getGetterBody().accept(this);
+        inSetterGetter = false;
         retType.pop();
         return null;
     }
