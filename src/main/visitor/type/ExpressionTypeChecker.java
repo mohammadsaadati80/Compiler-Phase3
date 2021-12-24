@@ -18,6 +18,7 @@ import main.compileError.typeError.*;
 import main.symbolTable.SymbolTable;
 import main.symbolTable.items.FunctionSymbolTableItem;
 import main.symbolTable.items.StructSymbolTableItem;
+import main.symbolTable.items.SymbolTableItem;
 import main.symbolTable.items.VariableSymbolTableItem;
 import main.symbolTable.exceptions.ItemNotFoundException;
 import main.symbolTable.utils.graph.Graph;
@@ -302,6 +303,22 @@ public class ExpressionTypeChecker extends Visitor<Type> {
 
     @Override
     public Type visit(Identifier identifier) {
+        try {
+            SymbolTableItem s = SymbolTable.root.getItem(StructSymbolTableItem.START_KEY+identifier.getName());
+            System.out.println(s.getName()+" => "+identifier.getLine());
+        } catch (ItemNotFoundException exception1) {
+            try {
+                SymbolTableItem s = SymbolTable.root.getItem(FunctionSymbolTableItem.START_KEY+identifier.getName());
+                System.out.println(s.getName()+" => "+identifier.getLine());
+            } catch (ItemNotFoundException exception2) {
+                try {
+                    SymbolTableItem s = SymbolTable.top.getItem(VariableSymbolTableItem.START_KEY+identifier.getName());
+                    System.out.println(s.getName()+" => "+identifier.getLine());
+                } catch (ItemNotFoundException exception3) {
+                    System.out.println(identifier.getName()+ "^^^^^^^^^^^^^^^^^^^^^^^^^^^^"+identifier.getLine());
+                }
+            }
+        }
         /*try {
             FunctionSymbolTableItem funcSym = (FunctionSymbolTableItem) SymbolTable.root.getItem(FunctionSymbolTableItem.START_KEY + identifier.getName());
             return new FptrType(identifier.getName());

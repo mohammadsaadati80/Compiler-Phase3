@@ -7,10 +7,18 @@ import main.ast.nodes.expression.operators.BinaryOperator;
 import main.ast.nodes.statement.*;
 import main.ast.types.ListType;
 import main.ast.types.NoType;
+import main.ast.types.StructType;
 import main.ast.types.Type;
 import main.ast.types.primitives.BoolType;
 import main.ast.types.primitives.IntType;
 import main.compileError.typeError.*;
+import main.symbolTable.SymbolTable;
+import main.symbolTable.exceptions.ItemAlreadyExistsException;
+import main.symbolTable.exceptions.ItemNotFoundException;
+import main.symbolTable.items.FunctionSymbolTableItem;
+import main.symbolTable.items.StructSymbolTableItem;
+import main.symbolTable.items.SymbolTableItem;
+import main.symbolTable.items.VariableSymbolTableItem;
 import main.visitor.Visitor;
 import java.util.Stack;
 
@@ -40,43 +48,82 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(FunctionDeclaration functionDec) {
+        SymbolTable.push(new SymbolTable());
         retType.push(functionDec.getReturnType());
+        StructType type = null;
+        if (retType.peek() instanceof StructType) {
+            try {
+                type = (StructType) retType.peek();
+                SymbolTable.root.getItem(StructSymbolTableItem.START_KEY + type.getStructName().getName());
+            } catch (ItemNotFoundException exception) {
+                functionDec.addError(new StructNotDeclared(functionDec.getLine(), type.getStructName().getName()));
+            }
+        }
         for (VariableDeclaration arg : functionDec.getArgs()) arg.accept(this);
         functionDec.getBody().accept(this);
         retType.pop();
+        SymbolTable.pop();
         return null;
     }
 
     @Override
     public Void visit(MainDeclaration mainDec) {
+        SymbolTable.push(new SymbolTable());
         mainDec.getBody().accept(this);
+        SymbolTable.pop();
         return null;
     }
 
     @Override
     public Void visit(VariableDeclaration variableDec) {
         if (inSetterGetter) variableDec.addError(new CannotUseDefineVar(variableDec.getLine()));
+        VariableSymbolTableItem variableSymbolTableItem = new VariableSymbolTableItem(variableDec.getVarName());
+        variableSymbolTableItem.setType(variableDec.getVarType());
+        if (variableDec.getVarType() instanceof StructType){
+            try {
+                SymbolTable.root.getItem(StructSymbolTableItem.START_KEY+variableDec.getVarName().getName());
+            }catch (ItemNotFoundException exception){
+                StructType structType = (StructType)variableDec.getVarType();
+                variableDec.addError(new StructNotDeclared(variableDec.getLine(),structType.getStructName().getName()));
+            }
+        }
+        try {
+            SymbolTable.top.put(variableSymbolTableItem);
+        } catch (ItemAlreadyExistsException ignored) {
+        }
         if (variableDec.getDefaultValue() != null) variableDec.getDefaultValue().accept(this);
         return null;
     }
 
     @Override
     public Void visit(StructDeclaration structDec) {
-        structDec.getBody().accept(this);
+        try {
+            StructSymbolTableItem symbolTableItem = (StructSymbolTableItem)
+                    SymbolTable.root.getItem(StructSymbolTableItem.START_KEY + structDec.getStructName().getName());
+            SymbolTable.push(symbolTableItem.getStructSymbolTable());
+            structDec.getBody().accept(this);
+        } catch (ItemNotFoundException ignored) {
+        }
         return null;
     }
 
     @Override
     public Void visit(SetGetVarDeclaration setGetVarDec) {
-        for (VariableDeclaration varDec : setGetVarDec.getArgs()) varDec.accept(this);
-        retType.push(setGetVarDec.getVarType());
-        inSetter = true;
-        inSetterGetter = true;
-        setGetVarDec.getSetterBody().accept(this);
-        inSetter = false;
-        setGetVarDec.getGetterBody().accept(this);
-        inSetterGetter = false;
-        retType.pop();
+        try {
+            FunctionSymbolTableItem symbolTableItem = (FunctionSymbolTableItem)
+                    SymbolTable.top.getItem(FunctionSymbolTableItem.START_KEY + setGetVarDec.getVarName().getName());
+            SymbolTable.push(symbolTableItem.getFunctionSymbolTable());
+            retType.push(setGetVarDec.getVarType());
+            inSetter = true;
+            inSetterGetter = true;
+            setGetVarDec.getSetterBody().accept(this);
+            inSetter = false;
+            SymbolTable.pop(); // TODO maybe not need to pop
+            setGetVarDec.getGetterBody().accept(this);
+            inSetterGetter = false;
+            retType.pop();
+        } catch (ItemNotFoundException ignored) {
+        }
         return null;
     }
 

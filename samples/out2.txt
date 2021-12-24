@@ -1,5 +1,33 @@
+i^^^^^^^^^^^^^^^^^^^^^^^^^^^^9
+course_id => 9
+i^^^^^^^^^^^^^^^^^^^^^^^^^^^^9
+student => 12
+course_id => 12
+student => 12
+student => 13
+id => 13
+a => 16
+id => 16
+a => 16
+i => 19
+student => 19
+student => 19
+li => 24
+li3 => 30
+li => 30
+li => 31
+li3 => 32
+i => 39
+function => 40
+i => 44
+fp1 => 46
+function => 46
+fp1 => 46
+Line 5: Struct Course is not declared
+Line 8: Struct Course is not declared
 Line 9: Get size of a non-list
 Line 10: Condition must be bool
+Line 11: Struct Student is not declared
 Line 12: Access on a non-struct
 Line 13: Access on a non-struct
 Line 13: Unsupported operand type for operator gt
