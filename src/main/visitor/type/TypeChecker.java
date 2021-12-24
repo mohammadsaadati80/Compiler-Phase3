@@ -9,10 +9,10 @@ import main.ast.types.ListType;
 import main.ast.types.NoType;
 import main.ast.types.Type;
 import main.ast.types.primitives.BoolType;
+import main.ast.types.primitives.IntType;
 import main.compileError.typeError.*;
 import main.symbolTable.utils.graph.Graph;
 import main.visitor.Visitor;
-
 import java.util.Stack;
 
 public class TypeChecker extends Visitor<Void> {
@@ -99,7 +99,7 @@ public class TypeChecker extends Visitor<Void> {
     @Override
     public Void visit(ConditionalStmt conditionalStmt) {
         Type conditionType = conditionalStmt.getCondition().accept(expressionTypeChecker);
-        if(!(conditionType instanceof BoolType) && !(conditionType instanceof NoType))
+        if (!(conditionType instanceof BoolType) && !(conditionType instanceof NoType))
             conditionalStmt.addError(new ConditionNotBool(conditionalStmt.getCondition().getLine()));
         conditionalStmt.getThenBody().accept(this);
         if (conditionalStmt.getElseBody() != null)
@@ -115,7 +115,9 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(DisplayStmt displayStmt) {
-        //Todo
+        Type argType = displayStmt.getArg().accept(expressionTypeChecker);
+        if (!(argType instanceof BoolType) && !(argType instanceof IntType))
+            displayStmt.addError(new UnsupportedTypeForDisplay(displayStmt.getArg().getLine()));
         return null;
     }
 
@@ -133,7 +135,7 @@ public class TypeChecker extends Visitor<Void> {
     @Override
     public Void visit(LoopStmt loopStmt) {
         Type conditionType = loopStmt.getCondition().accept(expressionTypeChecker);
-        if(!(conditionType instanceof BoolType) && !(conditionType instanceof NoType))
+        if (!(conditionType instanceof BoolType) && !(conditionType instanceof NoType))
             loopStmt.addError(new ConditionNotBool(loopStmt.getCondition().getLine()));
         loopStmt.getBody().accept(this);
         return null;
@@ -141,7 +143,7 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(VarDecStmt varDecStmt) {
-        for(VariableDeclaration varDec: varDecStmt.getVars()) varDec.accept(this);
+        for (VariableDeclaration varDec : varDecStmt.getVars()) varDec.accept(this);
         return null;
     }
 

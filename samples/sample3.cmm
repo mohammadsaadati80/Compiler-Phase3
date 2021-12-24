@@ -1,4 +1,5 @@
 main() begin
+	display(2)
     append(li, 2)
 	list #int li2
 	append(li, li2)
