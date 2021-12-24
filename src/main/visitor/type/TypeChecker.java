@@ -17,13 +17,11 @@ import java.util.Stack;
 
 public class TypeChecker extends Visitor<Void> {
     ExpressionTypeChecker expressionTypeChecker;
-    private Graph<String> structHierarchy;
     private final Stack<Type> retType = new Stack<>();
     private boolean inSetter;
     private boolean inSetterGetter;
 
     public void TypeChecker(Graph<String> structHierarchy) {
-        this.structHierarchy = structHierarchy;
         this.expressionTypeChecker = new ExpressionTypeChecker(structHierarchy);
     }
 
@@ -116,7 +114,7 @@ public class TypeChecker extends Visitor<Void> {
     @Override
     public Void visit(DisplayStmt displayStmt) {
         Type argType = displayStmt.getArg().accept(expressionTypeChecker);
-        if (!(argType instanceof BoolType) && !(argType instanceof IntType))
+        if (!(argType instanceof BoolType) && !(argType instanceof IntType) && !(argType instanceof ListType))
             displayStmt.addError(new UnsupportedTypeForDisplay(displayStmt.getArg().getLine()));
         return null;
     }
