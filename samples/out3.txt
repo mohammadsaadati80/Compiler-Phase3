@@ -1,17 +1,8 @@
-Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
-Exception in thread "main" java.lang.NullPointerException
-	at main.ast.nodes.expression.ListAccessByIndex.accept(ListAccessByIndex.java:38)
-	at main.visitor.type.TypeChecker.visit(TypeChecker.java:124)
-	at main.visitor.type.TypeChecker.visit(TypeChecker.java:18)
-	at main.ast.nodes.statement.ReturnStmt.accept(ReturnStmt.java:28)
-	at main.visitor.type.TypeChecker.visit(TypeChecker.java:95)
-	at main.visitor.type.TypeChecker.visit(TypeChecker.java:18)
-	at main.ast.nodes.statement.BlockStmt.accept(BlockStmt.java:27)
-	at main.visitor.type.TypeChecker.visit(TypeChecker.java:51)
-	at main.visitor.type.TypeChecker.visit(TypeChecker.java:18)
-	at main.ast.nodes.declaration.MainDeclaration.accept(MainDeclaration.java:23)
-	at main.visitor.type.TypeChecker.visit(TypeChecker.java:36)
-	at main.visitor.type.TypeChecker.visit(TypeChecker.java:18)
-	at main.ast.nodes.Program.accept(Program.java:50)
-	at main.CmmCompiler.compile(CmmCompiler.java:27)
-	at main.Cmm.main(Cmm.java:11)
+Line 9: Cannot use return statement in this scope
+Line 9: List index is not an integer
+Line 9: Access by index on a non-list
+Line 10: Cannot use return statement in this scope
+Line 10: Access by index on a non-list
+Line 11: Cannot use return statement in this scope
+Line 11: List index is not an integer
+Line 11: Access by index on a non-list

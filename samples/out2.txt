@@ -1,17 +1,26 @@
-Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
-Exception in thread "main" java.lang.NullPointerException
-	at main.ast.nodes.expression.Identifier.accept(Identifier.java:26)
-	at main.visitor.type.TypeChecker.visit(TypeChecker.java:84)
-	at main.visitor.type.TypeChecker.visit(TypeChecker.java:15)
-	at main.ast.nodes.statement.AssignmentStmt.accept(AssignmentStmt.java:39)
-	at main.visitor.type.TypeChecker.visit(TypeChecker.java:95)
-	at main.visitor.type.TypeChecker.visit(TypeChecker.java:15)
-	at main.ast.nodes.statement.BlockStmt.accept(BlockStmt.java:27)
-	at main.visitor.type.TypeChecker.visit(TypeChecker.java:41)
-	at main.visitor.type.TypeChecker.visit(TypeChecker.java:15)
-	at main.ast.nodes.declaration.FunctionDeclaration.accept(FunctionDeclaration.java:55)
-	at main.visitor.type.TypeChecker.visit(TypeChecker.java:32)
-	at main.visitor.type.TypeChecker.visit(TypeChecker.java:15)
-	at main.ast.nodes.Program.accept(Program.java:50)
-	at main.CmmCompiler.compile(CmmCompiler.java:27)
-	at main.Cmm.main(Cmm.java:11)
+Line 9: Get size of a non-list
+Line 10: Condition must be bool
+Line 12: Access on a non-struct
+Line 13: Access on a non-struct
+Line 13: Unsupported operand type for operator gt
+Line 16: Left side of the assignment must be a valid lvalue
+Line 16: Unsupported operand type for operator add
+Line 19: Return value does not match with function return type
+Line 19: Unsupported operand type for operator and
+Line 19: Access on a non-struct
+Line 19: Access on a non-struct
+Line 24: Return value does not match with function return type
+Line 24: Append to a non-list
+Line 30: Return value does not match with function return type
+Line 30: List index is not an integer
+Line 30: Access by index on a non-list
+Line 31: Return value does not match with function return type
+Line 31: Access by index on a non-list
+Line 32: Return value does not match with function return type
+Line 32: List index is not an integer
+Line 32: Access by index on a non-list
+Line 39: Condition must be bool
+Line 40: Cannot use return statement in this scope
+Line 40: Calling a non-callable
+Line 44: Unsupported operand type for operator and
+Line 46: Unsupported operand type for operator assign

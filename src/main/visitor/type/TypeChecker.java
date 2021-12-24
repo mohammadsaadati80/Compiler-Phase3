@@ -11,26 +11,29 @@ import main.ast.types.Type;
 import main.ast.types.primitives.BoolType;
 import main.ast.types.primitives.IntType;
 import main.compileError.typeError.*;
-import main.symbolTable.utils.graph.Graph;
 import main.visitor.Visitor;
 import java.util.Stack;
 
 public class TypeChecker extends Visitor<Void> {
-    ExpressionTypeChecker expressionTypeChecker;
-    private final Stack<Type> retType = new Stack<>();
+    private boolean inMain;
     private boolean inSetter;
     private boolean inSetterGetter;
+    ExpressionTypeChecker expressionTypeChecker;
+    private final Stack<Type> retType = new Stack<>();
 
-    public void TypeChecker(Graph<String> structHierarchy) {
-        this.expressionTypeChecker = new ExpressionTypeChecker(structHierarchy);
+    public TypeChecker() {
+        this.expressionTypeChecker = new ExpressionTypeChecker();
     }
 
     @Override
     public Void visit(Program program) {
+        inMain = false;
         for (StructDeclaration structDeclaration : program.getStructs())
             structDeclaration.accept(this);
         for (FunctionDeclaration functionDeclaration : program.getFunctions())
             functionDeclaration.accept(this);
+        inMain = true;
+        retType.push(new NoType());
         program.getMain().accept(this);
         return null;
     }
@@ -125,7 +128,7 @@ public class TypeChecker extends Visitor<Void> {
         boolean result = ret.getClass().equals(retType.peek().getClass());
         if (!result && !inSetter)
             returnStmt.addError(new ReturnValueNotMatchFunctionReturnType(returnStmt.getLine()));
-        if (inSetter)
+        if (inSetter || inMain)
             returnStmt.addError(new CannotUseReturn(returnStmt.getLine()));
         return null;
     }

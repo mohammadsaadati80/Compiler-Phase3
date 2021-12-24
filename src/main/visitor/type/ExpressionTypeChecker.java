@@ -27,16 +27,11 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class ExpressionTypeChecker extends Visitor<Type> {
-    private final Graph<String> structHierarchy;
     private StructSymbolTableItem curStruct;
     private FunctionSymbolTableItem curFunction;
     private boolean isFunctioncallStmt;
     private boolean isMain;
     private boolean seenNoneLvalue = false;
-
-    public ExpressionTypeChecker(Graph<String> structHierarchy) {
-        this.structHierarchy = structHierarchy;
-    }
 
     public void setFunctioncallStmt(boolean isFunctioncallStmt) {
         this.isFunctioncallStmt = isFunctioncallStmt;
