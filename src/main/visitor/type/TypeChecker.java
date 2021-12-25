@@ -4,6 +4,7 @@ import main.ast.nodes.Program;
 import main.ast.nodes.declaration.*;
 import main.ast.nodes.declaration.struct.*;
 import main.ast.nodes.expression.Identifier;
+import main.ast.nodes.expression.ListAppend;
 import main.ast.nodes.expression.operators.BinaryOperator;
 import main.ast.nodes.statement.*;
 import main.ast.types.ListType;
@@ -19,7 +20,6 @@ import main.symbolTable.exceptions.ItemAlreadyExistsException;
 import main.symbolTable.exceptions.ItemNotFoundException;
 import main.symbolTable.items.FunctionSymbolTableItem;
 import main.symbolTable.items.StructSymbolTableItem;
-import main.symbolTable.items.SymbolTableItem;
 import main.symbolTable.items.VariableSymbolTableItem;
 import main.visitor.Visitor;
 import java.util.Stack;
@@ -28,6 +28,7 @@ public class TypeChecker extends Visitor<Void> {
     private boolean inMain;
     private boolean inSetter;
     private boolean inSetterGetter;
+    protected static boolean isFunStmt;
     ExpressionTypeChecker expressionTypeChecker;
     private final Stack<Type> retType = new Stack<>();
 
@@ -70,7 +71,7 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(MainDeclaration mainDec) {
-        SymbolTable.push(new SymbolTable());
+        SymbolTable.push(new SymbolTable(SymbolTable.top));
         mainDec.getBody().accept(this);
         SymbolTable.pop();
         return null;
@@ -153,9 +154,13 @@ public class TypeChecker extends Visitor<Void> {
         Type conditionType = conditionalStmt.getCondition().accept(expressionTypeChecker);
         if (!(conditionType instanceof BoolType) && !(conditionType instanceof NoType))
             conditionalStmt.addError(new ConditionNotBool(conditionalStmt.getCondition().getLine()));
+        SymbolTable.push(new SymbolTable(SymbolTable.top));
         conditionalStmt.getThenBody().accept(this);
+        SymbolTable.pop();
+        SymbolTable.push(new SymbolTable(SymbolTable.top));
         if (conditionalStmt.getElseBody() != null)
             conditionalStmt.getElseBody().accept(this);
+        SymbolTable.pop();
         return null;
     }
 
@@ -170,6 +175,7 @@ public class TypeChecker extends Visitor<Void> {
     @Override
     public Void visit(DisplayStmt displayStmt) {
         Type argType = displayStmt.getArg().accept(expressionTypeChecker);
+        if (argType instanceof VoidType) return null;
         if (!(argType instanceof BoolType) && !(argType instanceof IntType) && !(argType instanceof ListType))
             displayStmt.addError(new UnsupportedTypeForDisplay(displayStmt.getArg().getLine()));
         return null;
@@ -179,11 +185,11 @@ public class TypeChecker extends Visitor<Void> {
     public Void visit(ReturnStmt returnStmt) {
         Type ret = returnStmt.getReturnedExpr().accept(expressionTypeChecker);
         boolean result = ret.getClass().equals(retType.peek().getClass());
-        if (!result && !inSetter && !(ret instanceof NoType))
+        if (!result && !inSetter && !(ret instanceof NoType) && !inMain)
             returnStmt.addError(new ReturnValueNotMatchFunctionReturnType(returnStmt.getLine()));
         if (inSetter || inMain)
             returnStmt.addError(new CannotUseReturn(returnStmt.getLine()));
-        if (ret instanceof VoidType)
+        if (returnStmt.getReturnedExpr() instanceof ListAppend)
             returnStmt.addError(new CantUseValueOfVoidFunction(returnStmt.getLine()));
         return null;
     }
@@ -193,7 +199,9 @@ public class TypeChecker extends Visitor<Void> {
         Type conditionType = loopStmt.getCondition().accept(expressionTypeChecker);
         if (!(conditionType instanceof BoolType) && !(conditionType instanceof NoType))
             loopStmt.addError(new ConditionNotBool(loopStmt.getCondition().getLine()));
+        SymbolTable.push(new SymbolTable(SymbolTable.top));
         loopStmt.getBody().accept(this);
+        SymbolTable.pop();
         return null;
     }
 

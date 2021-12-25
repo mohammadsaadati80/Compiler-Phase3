@@ -1,54 +1,29 @@
-i^^^^^^^^^^^^^^^^^^^^^^^^^^^^9
-course_id => 9
-i^^^^^^^^^^^^^^^^^^^^^^^^^^^^9
-student => 12
-course_id => 12
-student => 12
-student => 13
-id => 13
-a => 16
-id => 16
-a => 16
-i => 19
-student => 19
-student => 19
-li => 24
-li3 => 30
-li => 30
-li => 31
-li3 => 32
-i => 39
-function => 40
-i => 44
-fp1 => 46
-function => 46
-fp1 => 46
+Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
 Line 5: Struct Course is not declared
 Line 8: Struct Course is not declared
-Line 9: Get size of a non-list
-Line 10: Condition must be bool
-Line 11: Struct Student is not declared
-Line 12: Access on a non-struct
-Line 13: Access on a non-struct
+Line 9: Variable i is not declared
+Line 10: Variable i is not declared
+Line 10: Variable j is not declared
+Line 12: Unsupported operand type for operator assign
 Line 13: Unsupported operand type for operator gt
+Line 14: Unsupported operand type for operator add
+Line 14: Unsupported operand type for operator mult
 Line 16: Left side of the assignment must be a valid lvalue
 Line 16: Unsupported operand type for operator add
-Line 19: Return value does not match with function return type
 Line 19: Unsupported operand type for operator and
-Line 19: Access on a non-struct
-Line 19: Access on a non-struct
-Line 24: Return value does not match with function return type
-Line 24: Append to a non-list
+Line 19: Variable i is not declared
+Line 19: There is no member named major in struct Student
+Line 24: Cannot use return value of a function having void return type
+Line 26: New element type does not match with list type
+Line 28: Append to a non-list
+Line 29: Unsupported operand type for operator add
+Line 29: Get size of a non-list
 Line 30: Return value does not match with function return type
-Line 30: List index is not an integer
-Line 30: Access by index on a non-list
-Line 31: Return value does not match with function return type
 Line 31: Access by index on a non-list
-Line 32: Return value does not match with function return type
 Line 32: List index is not an integer
 Line 32: Access by index on a non-list
 Line 39: Condition must be bool
 Line 40: Cannot use return statement in this scope
-Line 40: Calling a non-callable
-Line 44: Unsupported operand type for operator and
+Line 40: Cannot use return value of a function having void return type
+Line 40: Args in function call do not match with definition
 Line 46: Unsupported operand type for operator assign
