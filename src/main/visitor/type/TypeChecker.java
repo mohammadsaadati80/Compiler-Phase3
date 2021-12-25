@@ -3,6 +3,7 @@ package main.visitor.type;
 import main.ast.nodes.Program;
 import main.ast.nodes.declaration.*;
 import main.ast.nodes.declaration.struct.*;
+import main.ast.nodes.expression.Identifier;
 import main.ast.nodes.expression.operators.BinaryOperator;
 import main.ast.nodes.statement.*;
 import main.ast.types.ListType;
@@ -11,6 +12,7 @@ import main.ast.types.StructType;
 import main.ast.types.Type;
 import main.ast.types.primitives.BoolType;
 import main.ast.types.primitives.IntType;
+import main.ast.types.primitives.VoidType;
 import main.compileError.typeError.*;
 import main.symbolTable.SymbolTable;
 import main.symbolTable.exceptions.ItemAlreadyExistsException;
@@ -81,7 +83,9 @@ public class TypeChecker extends Visitor<Void> {
         variableSymbolTableItem.setType(variableDec.getVarType());
         if (variableDec.getVarType() instanceof StructType){
             try {
-                SymbolTable.root.getItem(StructSymbolTableItem.START_KEY+variableDec.getVarName().getName());
+                StructType structType = (StructType)variableDec.getVarType();
+                Identifier structTypeName =  structType.getStructName();
+                SymbolTable.root.getItem(StructSymbolTableItem.START_KEY+structTypeName.getName());
             }catch (ItemNotFoundException exception){
                 StructType structType = (StructType)variableDec.getVarType();
                 variableDec.addError(new StructNotDeclared(variableDec.getLine(),structType.getStructName().getName()));
@@ -91,7 +95,7 @@ public class TypeChecker extends Visitor<Void> {
             SymbolTable.top.put(variableSymbolTableItem);
         } catch (ItemAlreadyExistsException ignored) {
         }
-        if (variableDec.getDefaultValue() != null) variableDec.getDefaultValue().accept(this);
+        if (variableDec.getDefaultValue() != null) variableDec.getDefaultValue().accept(expressionTypeChecker);
         return null;
     }
 
@@ -157,7 +161,9 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(FunctionCallStmt functionCallStmt) {
-        //Todo
+        expressionTypeChecker.setFunctioncallStmt(true);
+        functionCallStmt.getFunctionCall().accept(expressionTypeChecker);
+        expressionTypeChecker.setFunctioncallStmt(false);
         return null;
     }
 
@@ -173,10 +179,12 @@ public class TypeChecker extends Visitor<Void> {
     public Void visit(ReturnStmt returnStmt) {
         Type ret = returnStmt.getReturnedExpr().accept(expressionTypeChecker);
         boolean result = ret.getClass().equals(retType.peek().getClass());
-        if (!result && !inSetter)
+        if (!result && !inSetter && !(ret instanceof NoType))
             returnStmt.addError(new ReturnValueNotMatchFunctionReturnType(returnStmt.getLine()));
         if (inSetter || inMain)
             returnStmt.addError(new CannotUseReturn(returnStmt.getLine()));
+        if (ret instanceof VoidType)
+            returnStmt.addError(new CantUseValueOfVoidFunction(returnStmt.getLine()));
         return null;
     }
 
@@ -197,15 +205,13 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(ListAppendStmt listAppendStmt) {
-        //Todo
-//        listAppendStmt.
+        listAppendStmt.getListAppendExpr().accept(expressionTypeChecker);
         return null;
     }
 
     @Override
     public Void visit(ListSizeStmt listSizeStmt) {
-        if (!(listSizeStmt.getListSizeExpr().accept(expressionTypeChecker) instanceof ListType))
-            listSizeStmt.addError(new GetSizeOfNonList(listSizeStmt.getLine()));
+        listSizeStmt.getListSizeExpr().accept(expressionTypeChecker);
         return null;
     }
 }
