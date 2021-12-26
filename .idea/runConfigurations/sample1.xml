@@ -6,6 +6,7 @@
     <option name="PROGRAM_PARAMETERS" value="samples\sample1.cmm" />
     <method v="2">
       <option name="Make" enabled="true" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="sample2" run_configuration_type="Application" />
     </method>
   </configuration>
 </component>

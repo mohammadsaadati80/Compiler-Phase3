@@ -4,7 +4,6 @@ import main.ast.nodes.Program;
 import main.ast.nodes.declaration.*;
 import main.ast.nodes.declaration.struct.*;
 import main.ast.nodes.expression.Identifier;
-import main.ast.nodes.expression.ListAppend;
 import main.ast.nodes.expression.operators.BinaryOperator;
 import main.ast.nodes.statement.*;
 import main.ast.types.NoType;
@@ -12,6 +11,7 @@ import main.ast.types.StructType;
 import main.ast.types.Type;
 import main.ast.types.primitives.BoolType;
 import main.ast.types.primitives.IntType;
+import main.ast.types.primitives.VoidType;
 import main.compileError.typeError.*;
 import main.symbolTable.SymbolTable;
 import main.symbolTable.exceptions.ItemAlreadyExistsException;
@@ -127,7 +127,7 @@ public class TypeChecker extends Visitor<Void> {
             inSetterGetter = true;
             setGetVarDec.getSetterBody().accept(this);
             inSetter = false;
-            SymbolTable.pop(); // TODO maybe not need to pop
+            SymbolTable.pop();
             setGetVarDec.getGetterBody().accept(this);
             inSetterGetter = false;
             retType.pop();
@@ -192,7 +192,7 @@ public class TypeChecker extends Visitor<Void> {
             returnStmt.addError(new ReturnValueNotMatchFunctionReturnType(returnStmt.getLine()));
         if (inSetter || inMain)
             returnStmt.addError(new CannotUseReturn(returnStmt.getLine()));
-        if (returnStmt.getReturnedExpr() instanceof ListAppend)
+        if ((ret instanceof VoidType) && !(ret instanceof NoType))
             returnStmt.addError(new CantUseValueOfVoidFunction(returnStmt.getLine()));
         return null;
     }

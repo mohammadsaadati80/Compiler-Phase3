@@ -305,8 +305,7 @@ public class ExpressionTypeChecker extends Visitor<Type> {
                     structAccess.addError(ex);
                     return new NoType();
                 }
-            } catch (ItemNotFoundException exception1) {
-                return null;
+            } catch (ItemNotFoundException ignored) {
             }
 
         } else {
@@ -316,6 +315,7 @@ public class ExpressionTypeChecker extends Visitor<Type> {
             }
             return new NoType();
         }
+        return new NoType();
     }
 
     @Override
@@ -346,7 +346,7 @@ public class ExpressionTypeChecker extends Visitor<Type> {
                     NewElementTypeNotMatchListType exception = new NewElementTypeNotMatchListType(listAppend.getLine());
                     listAppend.addError(exception);
                 }
-                return new VoidType();
+                return new NoType();
             }
         } else {
             if (!(listArgType instanceof NoType)) {
@@ -354,7 +354,7 @@ public class ExpressionTypeChecker extends Visitor<Type> {
                 listAppend.addError(exception);
             } else
                 listAppend.getElementArg().accept(this);
-            return new VoidType();
+            return new NoType();
         }
     }
 
@@ -364,7 +364,7 @@ public class ExpressionTypeChecker extends Visitor<Type> {
         for (Expression input : exprInPar.getInputs()) {
             return input.accept(this);
         }
-        return null;
+        return new NoType();
     }
 
     @Override
