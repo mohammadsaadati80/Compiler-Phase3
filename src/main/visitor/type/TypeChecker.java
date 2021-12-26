@@ -177,7 +177,7 @@ public class TypeChecker extends Visitor<Void> {
         Type rValueType = assignmentStmt.getRValue().accept(expressionTypeChecker);
         if (!expressionTypeChecker.isLvalue(assignmentStmt.getLValue()))
             assignmentStmt.addError(new LeftSideNotLvalue(assignmentStmt.getLine()));
-        if (!this.expressionTypeChecker.sameType(lValueType, rValueType))
+        if (!this.expressionTypeChecker.isSameType(lValueType, rValueType))
             assignmentStmt.addError(new UnsupportedOperandType(assignmentStmt.getLine(), BinaryOperator.assign.name()));
         return null;
     }
@@ -205,9 +205,9 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(FunctionCallStmt functionCallStmt) {
-        expressionTypeChecker.setFunctionCallStmt(true);
+        expressionTypeChecker.setIsInFunctionCallStmt(true);
         functionCallStmt.getFunctionCall().accept(expressionTypeChecker);
-        expressionTypeChecker.setFunctionCallStmt(false);
+        expressionTypeChecker.setIsInFunctionCallStmt(false);
         return null;
     }
 
