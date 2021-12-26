@@ -183,8 +183,8 @@ public class TypeChecker extends Visitor<Void> {
     @Override
     public Void visit(DisplayStmt displayStmt) {
         Type argType = displayStmt.getArg().accept(expressionTypeChecker);
-        if (argType instanceof VoidType) return null;
-        if (!(argType instanceof BoolType) && !(argType instanceof IntType) && !(argType instanceof ListType))
+        if (!(argType instanceof BoolType) && !(argType instanceof IntType) && !(argType instanceof ListType)
+                && !(argType instanceof NoType))
             displayStmt.addError(new UnsupportedTypeForDisplay(displayStmt.getArg().getLine()));
         return null;
     }

@@ -261,12 +261,12 @@ public class ExpressionTypeChecker extends Visitor<Type> {
             funcCall.addError(new CantUseValueOfVoidFunction(funcCall.getLine()));
         if (funcCall.getArgs().size() != fptr.getArgsType().size()) {
             funcCall.addError(new ArgsInFunctionCallNotMatchDefinition(funcCall.getLine()));
-            return fptr.getReturnType();
+            return new NoType();
         }
         for (int i = 0; (i < fptr.getArgsType().size()) && (i < funcCall.getArgs().size()); i++) {
             if (!fptr.getArgsType().get(i).getClass().equals(funcCall.getArgs().get(i).accept(this).getClass())){
                 funcCall.addError(new ArgsInFunctionCallNotMatchDefinition(funcCall.getLine()));
-                return fptr.getReturnType();
+                return new NoType();
             }
         }
         return fptr.getReturnType();
