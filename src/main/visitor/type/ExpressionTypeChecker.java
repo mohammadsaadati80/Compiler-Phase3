@@ -246,7 +246,9 @@ public class ExpressionTypeChecker extends Visitor<Type> {
             try {
                 FunctionSymbolTableItem funcSym = (FunctionSymbolTableItem)
                         SymbolTable.root.getItem(FunctionSymbolTableItem.START_KEY + identifier.getName());
-                return new FptrType(funcSym.getArgTypes(), funcSym.getReturnType());
+                ArrayList<Type> args = funcSym.getArgTypes();
+                if (args.size() == 1) if (args.get(0) instanceof VoidType) args = new ArrayList<>();
+                return new FptrType(args, funcSym.getReturnType());
             } catch (ItemNotFoundException exception2) {
                 try {
                     SymbolTable.top.getItem(VariableSymbolTableItem.START_KEY + identifier.getName());
@@ -362,6 +364,7 @@ public class ExpressionTypeChecker extends Visitor<Type> {
     public Type visit(ExprInPar exprInPar) {
         seenNoneLvalue = true;
         for (Expression input : exprInPar.getInputs()) {
+            if (input instanceof Identifier) seenNoneLvalue = false;
             return input.accept(this);
         }
         return new NoType();

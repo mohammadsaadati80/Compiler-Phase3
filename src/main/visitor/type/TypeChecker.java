@@ -23,6 +23,7 @@ import main.visitor.Visitor;
 import java.util.Stack;
 
 public class TypeChecker extends Visitor<Void> {
+
     private boolean inMain;
     private boolean inSetter;
     private boolean inSetterGetter;
@@ -61,9 +62,35 @@ public class TypeChecker extends Visitor<Void> {
         }
         for (VariableDeclaration arg : functionDec.getArgs()) arg.accept(this);
         functionDec.getBody().accept(this);
+        if (returnError(functionDec.getBody()))
+            functionDec.addError(new MissingReturnStatement
+                    (functionDec.getLine(), functionDec.getFunctionName().getName()));
         retType.pop();
         SymbolTable.pop();
         return null;
+    }
+
+    private boolean returnError(Statement statement) {
+        if (retType.peek() instanceof VoidType) return false;
+        if (statement instanceof ReturnStmt) return false;
+        if (statement instanceof LoopStmt)
+            if (!returnError(((LoopStmt) statement).getBody())) return false;
+        if (statement instanceof ConditionalStmt) {
+            if (!returnError(((ConditionalStmt) statement).getThenBody())) return false;
+            if (!returnError(((ConditionalStmt) statement).getElseBody())) return false;
+        }
+        if (statement instanceof BlockStmt) {
+            for (Statement stmt : ((BlockStmt) statement).getStatements()) {
+                if (stmt instanceof ReturnStmt) return false;
+                if (stmt instanceof LoopStmt)
+                    if (!returnError(((LoopStmt) stmt).getBody())) return false;
+                if (stmt instanceof ConditionalStmt) {
+                    if (!returnError(((ConditionalStmt) stmt).getThenBody())) return false;
+                    if (!returnError(((ConditionalStmt) stmt).getElseBody())) return false;
+                }
+            }
+        }
+        return true;
     }
 
     @Override
@@ -129,6 +156,9 @@ public class TypeChecker extends Visitor<Void> {
             inSetter = false;
             SymbolTable.pop();
             setGetVarDec.getGetterBody().accept(this);
+            if (returnError(setGetVarDec.getGetterBody()))
+                setGetVarDec.addError(new MissingReturnStatement
+                        (setGetVarDec.getLine(), setGetVarDec.getVarName().getName()));
             inSetterGetter = false;
             retType.pop();
         } catch (ItemNotFoundException ignored) {
@@ -186,14 +216,16 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(ReturnStmt returnStmt) {
-        Type ret = returnStmt.getReturnedExpr().accept(expressionTypeChecker);
-        boolean result = ret.getClass().equals(retType.peek().getClass());
-        if (!result && !inSetter && !(ret instanceof NoType) && !inMain)
-            returnStmt.addError(new ReturnValueNotMatchFunctionReturnType(returnStmt.getLine()));
-        if (inSetter || inMain)
-            returnStmt.addError(new CannotUseReturn(returnStmt.getLine()));
-        if ((ret instanceof VoidType) && !(ret instanceof NoType))
-            returnStmt.addError(new CantUseValueOfVoidFunction(returnStmt.getLine()));
+        if (returnStmt.getReturnedExpr() != null) {
+            Type ret = returnStmt.getReturnedExpr().accept(expressionTypeChecker);
+            boolean result = ret.getClass().equals(retType.peek().getClass());
+            if (!result && !inSetter && !(ret instanceof NoType) && !inMain)
+                returnStmt.addError(new ReturnValueNotMatchFunctionReturnType(returnStmt.getLine()));
+            if (inSetter || inMain)
+                returnStmt.addError(new CannotUseReturn(returnStmt.getLine()));
+            if ((ret instanceof VoidType) && !(ret instanceof NoType))
+                returnStmt.addError(new CantUseValueOfVoidFunction(returnStmt.getLine()));
+        }
         return null;
     }
 
