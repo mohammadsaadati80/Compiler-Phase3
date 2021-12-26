@@ -7,13 +7,11 @@ import main.ast.nodes.expression.Identifier;
 import main.ast.nodes.expression.ListAppend;
 import main.ast.nodes.expression.operators.BinaryOperator;
 import main.ast.nodes.statement.*;
-import main.ast.types.ListType;
 import main.ast.types.NoType;
 import main.ast.types.StructType;
 import main.ast.types.Type;
 import main.ast.types.primitives.BoolType;
 import main.ast.types.primitives.IntType;
-import main.ast.types.primitives.VoidType;
 import main.compileError.typeError.*;
 import main.symbolTable.SymbolTable;
 import main.symbolTable.exceptions.ItemAlreadyExistsException;
@@ -22,14 +20,12 @@ import main.symbolTable.items.FunctionSymbolTableItem;
 import main.symbolTable.items.StructSymbolTableItem;
 import main.symbolTable.items.VariableSymbolTableItem;
 import main.visitor.Visitor;
-
 import java.util.Stack;
 
 public class TypeChecker extends Visitor<Void> {
     private boolean inMain;
     private boolean inSetter;
     private boolean inSetterGetter;
-    protected static boolean isFunStmt;
     ExpressionTypeChecker expressionTypeChecker;
     private final Stack<Type> retType = new Stack<>();
 
@@ -174,17 +170,16 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(FunctionCallStmt functionCallStmt) {
-        expressionTypeChecker.setFunctioncallStmt(true);
+        expressionTypeChecker.setFunctionCallStmt(true);
         functionCallStmt.getFunctionCall().accept(expressionTypeChecker);
-        expressionTypeChecker.setFunctioncallStmt(false);
+        expressionTypeChecker.setFunctionCallStmt(false);
         return null;
     }
 
     @Override
     public Void visit(DisplayStmt displayStmt) {
         Type argType = displayStmt.getArg().accept(expressionTypeChecker);
-        if (!(argType instanceof BoolType) && !(argType instanceof IntType) && !(argType instanceof ListType)
-                && !(argType instanceof NoType))
+        if (!(argType instanceof BoolType) && !(argType instanceof IntType) && !(argType instanceof NoType)) // ListType
             displayStmt.addError(new UnsupportedTypeForDisplay(displayStmt.getArg().getLine()));
         return null;
     }
