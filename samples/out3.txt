@@ -1,0 +1,6 @@
+Line 8: Missing return statement for function idx
+Line 5: Cannot define a new variable in this scope
+Line 10: Return value does not match with function return type
+Line 26: Args in function call do not match with definition
+Line 27: Unsupported operand type for operator assign
+Line 28: Unsupported operand type for operator eq

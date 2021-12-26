@@ -1,0 +1,29 @@
+struct A begin
+    int num
+    list #int idx(int c)begin
+        set begin
+            int _a = 1
+            num = 5* 5+ 5 / 5 - c
+        end
+        get begin
+            if (num < 5 * 5 / num)
+                return false;
+        end
+    end
+end
+
+struct B begin
+    int num
+end
+
+int f2(struct A a)
+    return 3
+
+
+main() begin
+    struct A a
+    struct B b
+    f2(b)
+    a = b;
+    bool c = a == b
+end

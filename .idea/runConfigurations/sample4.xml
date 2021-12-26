@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="sample1" type="Application" factoryName="Application">
-    <output_file path="$PROJECT_DIR$/samples/out1.txt" is_save="true" />
+  <configuration default="false" name="sample4" type="Application" factoryName="Application">
+    <output_file path="$PROJECT_DIR$/samples/out4.txt" is_save="true" />
     <option name="MAIN_CLASS_NAME" value="main.Cmm" />
     <module name="PLC_P3" />
-    <option name="PROGRAM_PARAMETERS" value="samples\sample1.cmm" />
+    <option name="PROGRAM_PARAMETERS" value="samples\sample4.cmm" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
