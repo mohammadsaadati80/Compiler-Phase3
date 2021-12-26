@@ -22,6 +22,7 @@ import main.symbolTable.items.FunctionSymbolTableItem;
 import main.symbolTable.items.StructSymbolTableItem;
 import main.symbolTable.items.VariableSymbolTableItem;
 import main.visitor.Visitor;
+
 import java.util.Stack;
 
 public class TypeChecker extends Visitor<Void> {
@@ -82,19 +83,26 @@ public class TypeChecker extends Visitor<Void> {
         if (inSetterGetter) variableDec.addError(new CannotUseDefineVar(variableDec.getLine()));
         VariableSymbolTableItem variableSymbolTableItem = new VariableSymbolTableItem(variableDec.getVarName());
         variableSymbolTableItem.setType(variableDec.getVarType());
-        if (variableDec.getVarType() instanceof StructType){
+        if (variableDec.getVarType() instanceof StructType) {
             try {
-                StructType structType = (StructType)variableDec.getVarType();
-                Identifier structTypeName =  structType.getStructName();
-                SymbolTable.root.getItem(StructSymbolTableItem.START_KEY+structTypeName.getName());
-            }catch (ItemNotFoundException exception){
-                StructType structType = (StructType)variableDec.getVarType();
-                variableDec.addError(new StructNotDeclared(variableDec.getLine(),structType.getStructName().getName()));
+                StructType structType = (StructType) variableDec.getVarType();
+                Identifier structTypeName = structType.getStructName();
+                SymbolTable.root.getItem(StructSymbolTableItem.START_KEY + structTypeName.getName());
+            } catch (ItemNotFoundException exception) {
+                StructType structType = (StructType) variableDec.getVarType();
+                variableSymbolTableItem.setType(new NoType());
+                variableDec.addError(new StructNotDeclared(variableDec.getLine(), structType.getStructName().getName()));
             }
         }
         try {
             SymbolTable.top.put(variableSymbolTableItem);
         } catch (ItemAlreadyExistsException ignored) {
+            try {
+                VariableSymbolTableItem symbolTableItem =
+                        (VariableSymbolTableItem) SymbolTable.top.getItem(variableSymbolTableItem.getKey());
+                symbolTableItem.setType(variableSymbolTableItem.getType());
+            } catch (ItemNotFoundException ignored1) {
+            }
         }
         if (variableDec.getDefaultValue() != null) variableDec.getDefaultValue().accept(expressionTypeChecker);
         return null;
