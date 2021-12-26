@@ -220,6 +220,8 @@ public class ExpressionTypeChecker extends Visitor<Type> {
         }
         if (retType instanceof FptrType) {
             FptrType fptr = (FptrType) retType;
+            if (fptr.getArgsType().size() == 1)
+                if (fptr.getArgsType().get(0) instanceof VoidType) fptr.setArgsType(new ArrayList<>());
             if ((fptr.getReturnType() instanceof VoidType) && !isFunctionCallStmt)
                 funcCall.addError(new CantUseValueOfVoidFunction(funcCall.getLine()));
             if (funcCall.getArgs().size() != fptr.getArgsType().size()) {

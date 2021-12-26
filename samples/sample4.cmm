@@ -1,0 +1,8 @@
+fptr<void->void> a()
+return b
+
+void b()
+  return
+
+main()
+   a()()
