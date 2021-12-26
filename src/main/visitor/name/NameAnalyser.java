@@ -267,7 +267,6 @@ public class NameAnalyser extends Visitor<Void> {
         }
 
         VariableSymbolTableItem variableSymbolTableItem = new VariableSymbolTableItem(variableDeclaration.getVarName());
-        variableSymbolTableItem.setType(variableDeclaration.getVarType()); // TODO beheshon begim
         try {
             SymbolTable.top.getItem(variableSymbolTableItem.getKey());
             DuplicateVar exception = new DuplicateVar(variableDeclaration.getLine(), name);

@@ -91,12 +91,14 @@ public class ExpressionTypeChecker extends Visitor<Type> {
         Type typeRight = rightOperand.accept(this);
         if (operator.equals(BinaryOperator.eq)) {
             if (typeLeft instanceof ListType || typeRight instanceof ListType) {
-                UnsupportedOperandType exception = new UnsupportedOperandType(leftOperand.getLine(), operator.name());
+                UnsupportedOperandType exception =
+                        new UnsupportedOperandType(leftOperand.getLine(), operator.name());
                 binaryExpression.addError(exception);
                 return new NoType();
             }
             if (!isSameType(typeLeft, typeRight)) {
-                UnsupportedOperandType exception = new UnsupportedOperandType(rightOperand.getLine(), operator.name());
+                UnsupportedOperandType exception =
+                        new UnsupportedOperandType(rightOperand.getLine(), operator.name());
                 binaryExpression.addError(exception);
                 return new NoType();
             } else {
@@ -132,7 +134,7 @@ public class ExpressionTypeChecker extends Visitor<Type> {
             if ((typeLeft instanceof BoolType) && (typeRight instanceof BoolType))
                 return new BoolType();
         } else if (operator.equals(BinaryOperator.add) || operator.equals(BinaryOperator.sub)
-                || operator.equals(BinaryOperator.mult) || operator.equals(BinaryOperator.div)){
+                || operator.equals(BinaryOperator.mult) || operator.equals(BinaryOperator.div)) {
             if (typeLeft instanceof NoType && typeRight instanceof NoType)
                 return new NoType();
             else if ((typeLeft instanceof NoType && !(typeRight instanceof IntType)) ||
@@ -160,7 +162,8 @@ public class ExpressionTypeChecker extends Visitor<Type> {
                     return typeLeft;
                 return new NoType();
             }
-            UnsupportedOperandType exception = new UnsupportedOperandType(binaryExpression.getLine(), operator.name());
+            UnsupportedOperandType exception =
+                    new UnsupportedOperandType(binaryExpression.getLine(), operator.name());
             binaryExpression.addError(exception);
             return new NoType();
         }
@@ -181,7 +184,8 @@ public class ExpressionTypeChecker extends Visitor<Type> {
             if (unaryType instanceof NoType)
                 return new NoType();
             else {
-                UnsupportedOperandType exception = new UnsupportedOperandType(operandExpression.getLine(), operator.name());
+                UnsupportedOperandType exception =
+                        new UnsupportedOperandType(operandExpression.getLine(), operator.name());
                 operandExpression.addError(exception);
                 return new NoType();
             }
@@ -191,7 +195,8 @@ public class ExpressionTypeChecker extends Visitor<Type> {
             if (unaryType instanceof NoType)
                 return new NoType();
             else {
-                UnsupportedOperandType exception = new UnsupportedOperandType(operandExpression.getLine(), operator.name());
+                UnsupportedOperandType exception =
+                        new UnsupportedOperandType(operandExpression.getLine(), operator.name());
                 operandExpression.addError(exception);
                 return new NoType();
             }
@@ -305,7 +310,8 @@ public class ExpressionTypeChecker extends Visitor<Type> {
                     return vs.getType();
                 } catch (ItemNotFoundException exception) {
                     StructMemberNotFound ex = new StructMemberNotFound(structAccess.getLine(),
-                            ((StructType) instanceType).getStructName().getName(), structAccess.getElement().getName());
+                            ((StructType) instanceType).getStructName().getName(),
+                            structAccess.getElement().getName());
                     structAccess.addError(ex);
                     return new NoType();
                 }
@@ -347,7 +353,8 @@ public class ExpressionTypeChecker extends Visitor<Type> {
                 return new VoidType();
             else {
                 if (!(elementArgType instanceof NoType)) {
-                    NewElementTypeNotMatchListType exception = new NewElementTypeNotMatchListType(listAppend.getLine());
+                    NewElementTypeNotMatchListType exception =
+                            new NewElementTypeNotMatchListType(listAppend.getLine());
                     listAppend.addError(exception);
                 }
                 return new NoType();
