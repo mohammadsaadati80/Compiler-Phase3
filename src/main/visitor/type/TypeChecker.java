@@ -6,6 +6,7 @@ import main.ast.nodes.declaration.struct.*;
 import main.ast.nodes.expression.Identifier;
 import main.ast.nodes.expression.operators.BinaryOperator;
 import main.ast.nodes.statement.*;
+import main.ast.types.FptrType;
 import main.ast.types.NoType;
 import main.ast.types.StructType;
 import main.ast.types.Type;
@@ -20,6 +21,7 @@ import main.symbolTable.items.FunctionSymbolTableItem;
 import main.symbolTable.items.StructSymbolTableItem;
 import main.symbolTable.items.VariableSymbolTableItem;
 import main.visitor.Visitor;
+
 import java.util.Stack;
 
 public class TypeChecker extends Visitor<Void> {
@@ -74,6 +76,9 @@ public class TypeChecker extends Visitor<Void> {
         if (statement == null) return false;
         if (retType.peek() instanceof VoidType) return true;
         if (statement instanceof ReturnStmt) return true;
+        if (!(statement instanceof BlockStmt) && !(statement instanceof LoopStmt)
+                && !(statement instanceof ConditionalStmt) && !(statement instanceof ReturnStmt))
+            return false;
         if (statement instanceof LoopStmt)
             if (haveReturn(((LoopStmt) statement).getBody())) return true;
         if (statement instanceof ConditionalStmt) {
@@ -100,7 +105,7 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(MainDeclaration mainDec) {
-        SymbolTable.push(new SymbolTable(SymbolTable.top));
+        SymbolTable.push(new SymbolTable(SymbolTable.root));
         mainDec.getBody().accept(this);
         SymbolTable.pop();
         return null;
@@ -123,6 +128,17 @@ public class TypeChecker extends Visitor<Void> {
                         new StructNotDeclared(variableDec.getLine(), structType.getStructName().getName()));
             }
         }
+        if (variableDec.getVarType() instanceof FptrType)
+            for (Type type : ((FptrType) variableDec.getVarType()).getArgsType())
+                if (type instanceof StructType) try {
+                    StructType structType = (StructType) type;
+                    Identifier structTypeName = structType.getStructName();
+                    SymbolTable.root.getItem(StructSymbolTableItem.START_KEY + structTypeName.getName());
+                } catch (ItemNotFoundException exception) {
+                    StructType structType = (StructType) type;
+                    variableSymbolTableItem.setType(new NoType());
+                    variableDec.addError(new StructNotDeclared(variableDec.getLine(), structType.getStructName().getName()));
+                }
         try {
             SymbolTable.top.put(variableSymbolTableItem);
         } catch (ItemAlreadyExistsException ignored) {
@@ -241,6 +257,7 @@ public class TypeChecker extends Visitor<Void> {
         if (returnStmt.getReturnedExpr() != null) {
             Type ret = returnStmt.getReturnedExpr().accept(expressionTypeChecker);
             boolean result = ret.getClass().equals(retType.peek().getClass());
+            if (ret instanceof FptrType) result = expressionTypeChecker.isSameType(((FptrType) ret), retType.peek());
             if (!result && !inSetter && !(ret instanceof NoType) && !inMain)
                 returnStmt.addError(new ReturnValueNotMatchFunctionReturnType(returnStmt.getLine()));
             if (inSetter || inMain)
@@ -264,7 +281,12 @@ public class TypeChecker extends Visitor<Void> {
 
     @Override
     public Void visit(VarDecStmt varDecStmt) {
-        for (VariableDeclaration varDec : varDecStmt.getVars()) varDec.accept(this);
+        int i = 0;
+        for (VariableDeclaration varDec : varDecStmt.getVars()) {
+            if (inSetterGetter && (i == 1)) return null;
+            varDec.accept(this);
+            i++;
+        }
         return null;
     }
 

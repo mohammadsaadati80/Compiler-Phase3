@@ -21,6 +21,7 @@ import main.symbolTable.items.StructSymbolTableItem;
 import main.symbolTable.items.VariableSymbolTableItem;
 import main.symbolTable.exceptions.ItemNotFoundException;
 import main.visitor.Visitor;
+
 import java.util.ArrayList;
 
 public class ExpressionTypeChecker extends Visitor<Type> {
@@ -44,7 +45,7 @@ public class ExpressionTypeChecker extends Visitor<Type> {
         if (element1 instanceof StructType && element2 instanceof StructType) {
             StructType s1 = (StructType) element1;
             StructType s2 = (StructType) element2;
-            return s1.getStructName() == s2.getStructName();
+            return s1.getStructName().getName().equals(s2.getStructName().getName());
         }
         if (element1 instanceof ListType && element2 instanceof ListType) {
             return isSameType(((ListType) element1).getType(), ((ListType) element2).getType());
@@ -56,6 +57,10 @@ public class ExpressionTypeChecker extends Visitor<Type> {
                 return false;
             ArrayList<Type> element1ArgsTypes = new ArrayList<>(((FptrType) element1).getArgsType());
             ArrayList<Type> element2ArgsTypes = new ArrayList<>(((FptrType) element2).getArgsType());
+            if (element1ArgsTypes.size() == 1)
+                if (element1ArgsTypes.get(0) instanceof VoidType) element1ArgsTypes.clear();
+            if (element2ArgsTypes.size() == 1)
+                if (element2ArgsTypes.get(0) instanceof VoidType) element2ArgsTypes.clear();
             if (element1ArgsTypes.size() != element2ArgsTypes.size())
                 return false;
             else {
@@ -227,8 +232,11 @@ public class ExpressionTypeChecker extends Visitor<Type> {
             FptrType fptr = (FptrType) retType;
             if (fptr.getArgsType().size() == 1)
                 if (fptr.getArgsType().get(0) instanceof VoidType) fptr.setArgsType(new ArrayList<>());
-            if ((fptr.getReturnType() instanceof VoidType) && !isInFunctionCallStmt)
+            boolean noType = false;
+            if ((fptr.getReturnType() instanceof VoidType) && !isInFunctionCallStmt) {
                 funcCall.addError(new CantUseValueOfVoidFunction(funcCall.getLine()));
+                noType = true;
+            }
             if (funcCall.getArgs().size() != fptr.getArgsType().size()) {
                 funcCall.addError(new ArgsInFunctionCallNotMatchDefinition(funcCall.getLine()));
                 return new NoType();
@@ -239,7 +247,7 @@ public class ExpressionTypeChecker extends Visitor<Type> {
                     return new NoType();
                 }
             }
-            return fptr.getReturnType();
+            return noType ? new NoType() : fptr.getReturnType();
         }
         return new NoType();
     }
